@@ -1,7 +1,7 @@
 import { stepCountIs, streamText } from "ai";
 import { google } from "@ai-sdk/google";
 import { SYSTEM_PROMPT } from "./prompts";
-import { getFileChangesInDirectoryTool } from "./tools";
+import { getFileChangesInDirectoryTool, getCommitMessageGeneratorTool, getMarkDownWriterTool } from "./tools";
 
 const codeReviewAgent = async (prompt: string) => {
     const result = streamText({
@@ -9,9 +9,11 @@ const codeReviewAgent = async (prompt: string) => {
         prompt,
         system: SYSTEM_PROMPT,
         tools: {
-            getFileChangesInDirectory: getFileChangesInDirectoryTool
+            getFileChangesInDirectory: getFileChangesInDirectoryTool,
+            commitMessageGenerator: getCommitMessageGeneratorTool,
+            markDownWriter: getMarkDownWriterTool,
         },
-        stopWhen: stepCountIs(10),
+        stopWhen: stepCountIs(100),
     });
 
     for await (const chunk of result.textStream) {
@@ -20,7 +22,7 @@ const codeReviewAgent = async (prompt: string) => {
 };
 
 await codeReviewAgent(
-  "Review the code changes in the current directory, make your reviews and suggestions file by file",
+  "Review the code changes in the current directory, make your reviews and suggestions file by file, also please generate a concise and descriptive commit message at the end of your review, finally generate a markdown document summarizing your review comments, please make use of the tools given to you.",
 );
 // // Specify the modle to use for generating text and a prompt
 // const { text } = await generateText({
